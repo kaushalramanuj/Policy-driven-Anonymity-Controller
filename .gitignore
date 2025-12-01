@@ -174,3 +174,4 @@ local_settings.py
 # Backup files
 *.backup
 *.bkp
+*.exe
