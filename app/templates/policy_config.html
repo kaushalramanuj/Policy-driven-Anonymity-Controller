@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+
+{% block title %}Policy Configuration - Anonymity Controller{% endblock %}
+
+{% block extra_css %}
+<style>
+    .policy-header {
+        margin-bottom: 2rem;
+    }
+
+    .policy-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .policy-file {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--bg-glass);
+        border-radius: var(--radius-md);
+        margin-bottom: 0.75rem;
+        transition: all var(--transition-fast);
+        cursor: pointer;
+    }
+
+    .policy-file:hover {
+        background: var(--bg-tertiary);
+        transform: translateX(5px);
+    }
+
+    .policy-file-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-sm);
+        background: rgba(99, 102, 241, 0.15);
+        color: var(--accent-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .policy-file-name {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+
+    .policy-file-desc {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .test-form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .risk-badge {
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius-md);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+    }
+
+    .risk-low {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--success);
+    }
+
+    .risk-medium {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--warning);
+    }
+
+    .risk-high {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--danger);
+    }
+
+    .time-rule {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: var(--bg-glass);
+        border-radius: var(--radius-sm);
+        margin-bottom: 0.5rem;
+    }
+
+    .time-rule-icon {
+        color: var(--accent-primary);
+    }
+
+    .time-rule-text {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    .info-card {
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: var(--radius-md);
+        padding: 1rem;
+    }
+
+    .info-card h6 {
+        color: var(--info);
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .sidebar-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 1200px) {
+        .policy-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .test-form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="policy-header fade-in">
+    <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem;">
+        <span class="text-gradient">Policy Configuration</span>
+    </h1>
+    <p style="color: var(--text-muted);">Configure access control policies and system behavior</p>
+</div>
+
+<div class="policy-grid">
+    <!-- Main Content -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <!-- Policy Rules -->
+        <div class="glass-card fade-in">
+            <div class="card-header-custom">
+                <h5><i class="fas fa-file-code"></i> Policy Rules (Rego)</h5>
+            </div>
+            <div class="card-body-custom">
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                    Policies are defined in OPA Rego files. The system automatically loads and evaluates these policies for each request.
+                </p>
+
+                <div class="info-card mb-3">
+                    <h6><i class="fas fa-folder"></i> Policy Files</h6>
+                    <div class="policy-file">
+                        <div class="policy-file-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div>
+                            <div class="policy-file-name">anonymity.rego</div>
+                            <div class="policy-file-desc">Main access control logic</div>
+                        </div>
+                    </div>
+                    <div class="policy-file">
+                        <div class="policy-file-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div>
+                            <div class="policy-file-name">risk_assessment.rego</div>
+                            <div class="policy-file-desc">Risk evaluation rules</div>
+                        </div>
+                    </div>
+                    <div class="policy-file">
+                        <div class="policy-file-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <div class="policy-file-name">time_based.rego</div>
+                            <div class="policy-file-desc">Time-based access control</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert-custom alert-info-custom">
+                    <i class="fas fa-lightbulb"></i>
+                    <div>
+                        <strong>Tip:</strong> Edit the .rego files in <code style="background: var(--bg-tertiary); padding: 0.25rem 0.5rem; border-radius: 4px;">opa/policies/</code> directory. OPA will automatically reload the policies.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Policy Tester -->
+        <div class="glass-card fade-in">
+            <div class="card-header-custom">
+                <h5><i class="fas fa-flask"></i> Policy Tester</h5>
+            </div>
+            <div class="card-body-custom">
+                <form id="policy-test-form">
+                    <div class="test-form-grid">
+                        <div class="form-group">
+                            <label class="form-label">User Risk Level</label>
+                            <select class="form-select-custom" id="test-risk-level">
+                                <option value="low">Low Risk</option>
+                                <option value="medium" selected>Medium Risk</option>
+                                <option value="high">High Risk</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Time of Day (Hour)</label>
+                            <input type="number" class="form-control-custom" id="test-time" 
+                                   min="0" max="23" value="14" placeholder="0-23">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Test URL</label>
+                        <input type="url" class="form-control-custom" id="test-url" 
+                               value="https://httpbin.org/get" placeholder="https://example.com">
+                    </div>
+
+                    <button type="submit" class="btn-custom btn-primary-custom">
+                        <i class="fas fa-play"></i> Test Policy
+                    </button>
+                </form>
+
+                <div id="test-results" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar-cards">
+        <!-- Policy Documentation -->
+        <div class="glass-card fade-in stagger-1">
+            <div class="card-header-custom">
+                <h5><i class="fas fa-book"></i> Documentation</h5>
+            </div>
+            <div class="card-body-custom">
+                <h6 style="margin-bottom: 1rem; color: var(--text-primary);">Access Control Rules</h6>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                    Policies evaluate requests based on:
+                </p>
+                <ul style="font-size: 0.85rem; color: var(--text-muted); padding-left: 1.25rem; margin-bottom: 1.5rem;">
+                    <li>User risk profile</li>
+                    <li>Request timing</li>
+                    <li>Target URL patterns</li>
+                    <li>Request frequency</li>
+                    <li>System load</li>
+                </ul>
+
+                <h6 style="margin-bottom: 1rem; color: var(--text-primary);">Risk Levels</h6>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem;">
+                    <span class="risk-badge risk-low">
+                        <i class="fas fa-check"></i> Low - Direct/HTTP access
+                    </span>
+                    <span class="risk-badge risk-medium">
+                        <i class="fas fa-exclamation"></i> Medium - HTTPS proxy required
+                    </span>
+                    <span class="risk-badge risk-high">
+                        <i class="fas fa-shield-alt"></i> High - Tor network only
+                    </span>
+                </div>
+
+                <h6 style="margin-bottom: 1rem; color: var(--text-primary);">Time-Based Rules</h6>
+                <div class="time-rule">
+                    <i class="fas fa-sun time-rule-icon"></i>
+                    <span class="time-rule-text">Business hours: 9 AM - 6 PM</span>
+                </div>
+                <div class="time-rule">
+                    <i class="fas fa-wrench time-rule-icon"></i>
+                    <span class="time-rule-text">Maintenance: 2 AM - 4 AM</span>
+                </div>
+                <div class="time-rule">
+                    <i class="fas fa-calendar-week time-rule-icon"></i>
+                    <span class="time-rule-text">Weekend: Relaxed policies</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Important Notes -->
+        <div class="glass-card fade-in stagger-2">
+            <div class="card-header-custom">
+                <h5><i class="fas fa-exclamation-triangle"></i> Important Notes</h5>
+            </div>
+            <div class="card-body-custom">
+                <div class="alert-custom alert-warning-custom" style="margin-bottom: 0;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div style="font-size: 0.9rem;">
+                        <strong>Caution:</strong> Policy changes take effect immediately. Always test policies thoroughly before deploying to production environments.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

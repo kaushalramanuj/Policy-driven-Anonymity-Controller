@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Policy-Driven Anonymity Controller{% endblock %}</title>
+
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg"></div>
+    <div class="grid-pattern"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 2rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <!-- Brand -->
+                <a class="navbar-brand" href="{{ url_for('main.dashboard') }}">
+                    <div class="brand-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <span>Anonymity Controller</span>
+                </a>
+
+                <!-- Navigation Links -->
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'main.dashboard' }}" href="{{ url_for('main.dashboard') }}">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a class="nav-link {{ 'active' if request.endpoint == 'main.policy_config' }}" href="{{ url_for('main.policy_config') }}">
+                        <i class="fas fa-cogs"></i>
+                        <span>Policies</span>
+                    </a>
+                    <a class="nav-link {{ 'active' if request.endpoint == 'main.monitoring' }}" href="{{ url_for('main.monitoring') }}">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Monitoring</span>
+                    </a>
+                </div>
+
+                <!-- Right Side -->
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <!-- Session Badge -->
+                    <div class="session-badge">
+                        <div class="session-dot"></div>
+                        <span>{{ session.get('session_id', 'Anonymous')[:8] }}</span>
+                    </div>
+                    
+                    <!-- Theme Toggle -->
+                    <button class="theme-toggle" title="Toggle theme">
+                        <i class="fas fa-sun"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert-custom alert-{{ 'danger' if category == 'error' else category }}-custom fade-in">
+                        <i class="fas fa-{{ 'exclamation-circle' if category == 'error' else 'info-circle' }}"></i>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-custom">
+        <div class="container">
+            <p>&copy; 2024 Policy-Driven Anonymity Controller</p>
+            <p><small>Cybersecurity Project - Educational Use Only</small></p>
+        </div>
+    </footer>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

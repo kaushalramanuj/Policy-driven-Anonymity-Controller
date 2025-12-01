@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Anonymity Controller{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .main-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .mini-stat {
+        text-align: center;
+        padding: 1rem;
+        background: var(--bg-glass);
+        border-radius: var(--radius-md);
+    }
+
+    .mini-stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        display: block;
+    }
+
+    .mini-stat-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .backend-btn-grid {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .text-success { color: var(--success) !important; }
+    .text-danger { color: var(--danger) !important; }
+    .text-warning { color: var(--warning) !important; }
+
+    @media (max-width: 1200px) {
+        .dashboard-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .main-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="fade-in" style="margin-bottom: 2rem;">
+    <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem;">
+        <span class="text-gradient">Dashboard</span>
+    </h1>
+    <p style="color: var(--text-muted);">Monitor system status and make anonymous requests</p>
+</div>
+
+<!-- System Status Cards -->
+<div class="dashboard-grid">
+    <!-- Policy Engine -->
+    <div class="status-card fade-in stagger-1">
+        <div class="status-icon online" id="policy-engine-icon">
+            <i class="fas fa-shield-alt"></i>
+        </div>
+        <div class="status-title">Policy Engine</div>
+        <div class="status-value">
+            <span class="status-dot online" id="policy-engine-dot"></span>
+            <span id="policy-engine-text" class="text-success">Active</span>
+        </div>
+    </div>
+
+    <!-- Proxy Manager -->
+    <div class="status-card fade-in stagger-2">
+        <div class="status-icon" id="proxy-manager-icon">
+            <i class="fas fa-network-wired"></i>
+        </div>
+        <div class="status-title">Proxy Manager</div>
+        <div class="status-value">
+            <span class="status-dot" id="proxy-manager-dot"></span>
+            <span id="proxy-manager-text">Checking...</span>
+        </div>
+    </div>
+
+    <!-- Tor Network -->
+    <div class="status-card fade-in stagger-3">
+        <div class="status-icon" id="tor-network-icon">
+            <i class="fas fa-user-secret"></i>
+        </div>
+        <div class="status-title">Tor Network</div>
+        <div class="status-value">
+            <span class="status-dot" id="tor-network-dot"></span>
+            <span id="tor-network-text">Checking...</span>
+        </div>
+    </div>
+
+    <!-- Fingerprint Protection -->
+    <div class="status-card fade-in stagger-4">
+        <div class="status-icon online" id="fingerprint-icon">
+            <i class="fas fa-fingerprint"></i>
+        </div>
+        <div class="status-title">Fingerprint Protection</div>
+        <div class="status-value">
+            <span class="status-dot online" id="fingerprint-dot"></span>
+            <span id="fingerprint-text" class="text-success">Ready</span>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Grid -->
+<div class="main-grid">
+    <!-- Request Form -->
+    <div class="glass-card fade-in">
+        <div class="card-header-custom">
+            <h5><i class="fas fa-paper-plane"></i> Make Anonymous Request</h5>
+        </div>
+        <div class="card-body-custom">
+            <form id="anonymity-form">
+                <!-- Target URL -->
+                <div class="form-group">
+                    <label class="form-label">Target URL</label>
+                    <input type="url" class="form-control-custom" id="target-url" 
+                           placeholder="https://example.com" required>
+                    <span class="form-hint">Enter the URL you want to access anonymously</span>
+                </div>
+
+                <!-- Method & Backend -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">HTTP Method</label>
+                        <select class="form-select-custom" id="method">
+                            <option value="GET" selected>GET</option>
+                            <option value="POST">POST</option>
+                            <option value="PUT">PUT</option>
+                            <option value="DELETE">DELETE</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Backend Preference</label>
+                        <select class="form-select-custom" id="backend">
+                            <option value="auto" selected>Auto (Policy Decides)</option>
+                            <option value="tor">Tor Network (High Anonymity)</option>
+                            <option value="https">HTTPS Proxy (Medium)</option>
+                            <option value="http">HTTP Proxy (Low)</option>
+                            <option value="direct">Direct (No Anonymity)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Fingerprint Protection Toggle -->
+                <div class="form-group">
+                    <label class="custom-checkbox">
+                        <input type="checkbox" id="fingerprint-protection" checked>
+                        <span class="checkbox-box"><i class="fas fa-check"></i></span>
+                        <span class="checkbox-label">
+                            Enable Fingerprint Protection
+                            <small>Uses Selenium for advanced browser evasion (slower but more secure)</small>
+                        </span>
+                    </label>
+                </div>
+
+                <!-- POST Data Section -->
+                <div class="form-group" id="post-data-section" style="display: none;">
+                    <label class="form-label">Request Data (JSON)</label>
+                    <textarea class="form-control-custom" id="post-data" rows="4" 
+                              placeholder='{"key": "value"}'></textarea>
+                    <span class="form-hint">For POST/PUT requests, enter JSON data</span>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-custom btn-primary-custom btn-lg-custom btn-full-width">
+                    <span class="btn-text">Send Anonymous Request</span>
+                    <span class="spinner" style="display: none;"></span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <!-- User Statistics -->
+        <div class="glass-card fade-in stagger-2">
+            <div class="card-header-custom">
+                <h5><i class="fas fa-chart-bar"></i> Your Statistics</h5>
+            </div>
+            <div class="card-body-custom">
+                <div id="user-stats">
+                    <div class="text-center" style="color: var(--text-muted); padding: 2rem;">
+                        <div class="spinner" style="margin: 0 auto 1rem;"></div>
+                        <p>Loading statistics...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Backend Testing -->
+        <div class="glass-card fade-in stagger-3">
+            <div class="card-header-custom">
+                <h5><i class="fas fa-vial"></i> Backend Testing</h5>
+            </div>
+            <div class="card-body-custom">
+                <div class="backend-btn-grid">
+                    <button class="btn-custom btn-secondary-custom btn-sm-custom test-backend" data-backend="tor">
+                        <i class="fas fa-user-secret"></i> Test Tor Network
+                    </button>
+                    <button class="btn-custom btn-secondary-custom btn-sm-custom test-backend" data-backend="https">
+                        <i class="fas fa-lock"></i> Test HTTPS Proxy
+                    </button>
+                    <button class="btn-custom btn-secondary-custom btn-sm-custom test-backend" data-backend="http">
+                        <i class="fas fa-globe"></i> Test HTTP Proxy
+                    </button>
+                    <button class="btn-custom btn-secondary-custom btn-sm-custom test-backend" data-backend="direct">
+                        <i class="fas fa-bolt"></i> Test Direct Connection
+                    </button>
+                </div>
+                <div id="test-results" class="mt-2"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Section -->
+<div class="glass-card fade-in mt-3" id="results-card" style="display: none;">
+    <div class="card-header-custom">
+        <h5><i class="fas fa-eye"></i> Request Results</h5>
+    </div>
+    <div class="card-body-custom">
+        <div id="request-results"></div>
+    </div>
+</div>
+{% endblock %}

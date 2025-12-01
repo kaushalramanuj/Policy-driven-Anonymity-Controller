@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Monitoring - Anonymity Controller{% endblock %}
+
+{% block content %}
+<div class="page-header fade-in">
+    <div>
+        <h1><i class="fas fa-chart-line"></i> System Monitoring</h1>
+        <p class="text-muted">Real-time statistics and performance metrics</p>
+    </div>
+    <div class="header-actions">
+        <span class="live-indicator">
+            <span class="live-dot"></span>
+            Live Updates
+        </span>
+        <span class="text-muted" style="font-size: 0.85rem;">
+            Last refresh: <span id="last-refresh">--:--:--</span>
+        </span>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- System Status Card -->
+    <div class="card-custom fade-in" style="animation-delay: 0.1s;">
+        <div class="card-header-custom">
+            <h3><i class="fas fa-server"></i> System Status</h3>
+        </div>
+        <div class="card-body-custom">
+            <div class="status-grid">
+                <div class="status-item" id="policy-engine-status">
+                    <div class="status-dot online"></div>
+                    <span>Policy Engine</span>
+                    <span class="status-text">Online</span>
+                </div>
+                <div class="status-item" id="tor-status">
+                    <div class="status-dot online"></div>
+                    <span>Tor Network</span>
+                    <span class="status-text">Online</span>
+                </div>
+                <div class="status-item" id="proxy-status">
+                    <div class="status-dot online"></div>
+                    <span>Proxy Manager</span>
+                    <span class="status-text">Online</span>
+                </div>
+                <div class="status-item" id="fingerprint-status">
+                    <div class="status-dot online"></div>
+                    <span>Fingerprint Protection</span>
+                    <span class="status-text">Online</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Backend Statistics Card -->
+    <div class="card-custom fade-in" style="animation-delay: 0.2s;">
+        <div class="card-header-custom">
+            <h3><i class="fas fa-network-wired"></i> Backend Usage Statistics</h3>
+            <span class="badge-custom badge-info">Your Session</span>
+        </div>
+        <div class="card-body-custom">
+            <div class="stats-grid">
+                <div class="stat-card stat-tor">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-secret"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="tor-count">0</div>
+                        <div class="stat-label">Tor Network</div>
+                    </div>
+                </div>
+                <div class="stat-card stat-direct">
+                    <div class="stat-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="direct-count">0</div>
+                        <div class="stat-label">Direct Connection</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Statistics Card -->
+    <div class="card-custom fade-in" style="animation-delay: 0.3s;">
+        <div class="card-header-custom">
+            <h3><i class="fas fa-chart-bar"></i> Request Statistics</h3>
+        </div>
+        <div class="card-body-custom">
+            <div class="request-stats-grid">
+                <div class="request-stat">
+                    <div class="request-stat-value" id="total-requests">0</div>
+                    <div class="request-stat-label">Total Requests</div>
+                </div>
+                <div class="request-stat success">
+                    <div class="request-stat-value" id="successful-requests">0</div>
+                    <div class="request-stat-label">Successful</div>
+                </div>
+                <div class="request-stat danger">
+                    <div class="request-stat-value" id="failed-requests">0</div>
+                    <div class="request-stat-label">Failed</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Metrics Card -->
+    <div class="card-custom fade-in" style="animation-delay: 0.4s;">
+        <div class="card-header-custom">
+            <h3><i class="fas fa-tachometer-alt"></i> Performance Metrics</h3>
+        </div>
+        <div class="card-body-custom">
+            <div class="performance-grid">
+                <div class="performance-item">
+                    <div class="performance-icon" style="background: var(--primary-alpha); color: var(--primary);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="performance-info">
+                        <div class="performance-value" id="avg-response-time">0.00s</div>
+                        <div class="performance-label">Avg Response Time</div>
+                    </div>
+                </div>
+                <div class="performance-item">
+                    <div class="performance-icon" style="background: rgba(34, 197, 94, 0.2); color: var(--success);">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="performance-info">
+                        <div class="performance-value" id="success-rate">0.0%</div>
+                        <div class="performance-label">Success Rate</div>
+                    </div>
+                </div>
+                <div class="performance-item">
+                    <div class="performance-icon" style="background: rgba(251, 191, 36, 0.2); color: var(--warning);">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <div class="performance-info">
+                        <div class="performance-value" id="last-request-time">Never</div>
+                        <div class="performance-label">Last Request</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Log Card -->
+    <div class="card-custom fade-in" style="animation-delay: 0.5s; grid-column: 1 / -1;">
+        <div class="card-header-custom">
+            <h3><i class="fas fa-list-alt"></i> Recent Activity</h3>
+            <div class="header-buttons" style="display: flex; gap: 0.5rem;">
+                <button class="btn-custom btn-sm btn-secondary" onclick="MonitoringStats.loadStats()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+                <button class="btn-custom btn-sm btn-danger" onclick="MonitoringStats.clearHistory()">
+                    <i class="fas fa-trash-alt"></i> Clear
+                </button>
+            </div>
+        </div>
+        <div class="card-body-custom">
+            <div class="activity-log" id="activity-log">
+                <div class="activity-empty">
+                    <i class="fas fa-inbox"></i>
+                    <p>No recent activity. Make some requests from the Dashboard!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

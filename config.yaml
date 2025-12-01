@@ -1,0 +1,185 @@
+# Policy-Driven Anonymity Controller - Configuration File
+# This file contains application settings and configuration
+
+# Application Settings
+app:
+  name: "Policy-Driven Anonymity Controller"
+  version: "1.0.0"
+  environment: "development"  # development, testing, production
+  debug: true
+  secret_key: "dev-secret-key-change-in-production"
+
+# Server Configuration
+server:
+  host: "127.0.0.1"
+  port: 5000
+  threaded: true
+
+# Database Configuration
+database:
+  # For SQLite (default for development)
+  url: "sqlite:///anonymity_controller.db"
+
+  # For PostgreSQL (recommended for production)
+  # url: "postgresql://username:password@localhost:5432/anonymity_db"
+
+  # For MySQL
+  # url: "mysql://username:password@localhost:3306/anonymity_db"
+
+  track_modifications: false
+  echo_sql: false  # Set to true to see SQL queries in console
+
+# Open Policy Agent Configuration
+opa:
+  url: "http://localhost:8181"
+  policy_endpoint: "/v1/data/anonymity"
+  health_endpoint: "/health"
+  timeout: 5  # seconds
+  retry_attempts: 3
+  secured: false  # Set to true in production with authentication
+
+# Proxy Configuration
+proxy:
+  # HTTP Proxies (add your own proxy servers)
+  http_proxies:
+    - "http://proxy1.example.com:8080"
+    - "http://proxy2.example.com:8080"
+
+  # HTTPS Proxies (add your own proxy servers)
+  https_proxies:
+    - "https://proxy1.example.com:8443"
+    - "https://proxy2.example.com:8443"
+
+  # Proxy authentication (if required)
+  proxy_auth:
+    enabled: false
+    username: ""
+    password: ""
+
+# Tor Configuration
+tor:
+  enabled: true
+  socks_host: "127.0.0.1"
+  socks_port: 9050
+  control_host: "127.0.0.1"
+  control_port: 9051
+  password: ""  # Tor control port password (if configured)
+  circuit_timeout: 10  # seconds before forcing new circuit
+
+# Selenium Configuration (for fingerprint protection)
+selenium:
+  driver: "chrome"  # chrome or firefox
+  headless: true
+  window_size:
+    width: 1920
+    height: 1080
+  page_load_timeout: 30  # seconds
+  implicit_wait: 10  # seconds
+
+  # Chrome specific options
+  chrome:
+    disable_gpu: true
+    no_sandbox: true
+    disable_dev_shm: true
+
+  # Firefox specific options
+  firefox:
+    disable_webgl: true
+    disable_webrtc: true
+
+# Security Settings
+security:
+  session_timeout: 3600  # 1 hour in seconds
+  max_requests_per_minute: 60
+  max_concurrent_requests: 10
+  request_timeout: 30  # seconds
+
+  # Rate limiting
+  rate_limit:
+    enabled: true
+    per_user: 100  # requests per hour
+    global: 1000  # total requests per hour
+
+  # CORS settings
+  cors:
+    enabled: false
+    allowed_origins: ["http://localhost:3000"]
+
+# Logging Configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+  # File logging
+  file:
+    enabled: true
+    path: "logs/anonymity_controller.log"
+    max_bytes: 10485760  # 10 MB
+    backup_count: 5
+
+  # Console logging
+  console:
+    enabled: true
+
+# Request Logging
+request_logging:
+  enabled: true
+  log_headers: false  # Set to true to log request headers (be careful with sensitive data)
+  log_body: false  # Set to true to log request body
+  log_response: false  # Set to true to log responses
+
+# Monitoring and Analytics
+monitoring:
+  enabled: true
+  metrics_retention_days: 30
+  system_health_check_interval: 60  # seconds
+
+# Email Notifications (optional)
+email:
+  enabled: false
+  smtp_server: "smtp.gmail.com"
+  smtp_port: 587
+  use_tls: true
+  username: ""
+  password: ""
+  from_address: "anonymity-controller@example.com"
+  admin_emails: []
+
+# Backup Configuration (optional)
+backup:
+  enabled: false
+  interval: "daily"  # hourly, daily, weekly
+  retention_days: 7
+  backup_path: "backups/"
+
+# Features Flags
+features:
+  user_registration: false  # Allow users to register
+  public_access: true  # Allow anonymous access without login
+  fingerprint_protection: true
+  tor_support: true
+  policy_enforcement: true
+  request_analytics: true
+
+# Development Settings
+development:
+  reload_on_change: true
+  show_sql_queries: false
+  enable_profiling: false
+  fake_data: false  # Generate fake data for testing
+
+# Testing Settings
+testing:
+  test_mode: false
+  mock_opa: false
+  mock_proxies: false
+  mock_tor: false
+
+# Production Settings
+production:
+  debug: false
+  use_https: true
+  ssl_certificate: ""
+  ssl_key: ""
+  behind_proxy: false  # Set to true if behind nginx/apache
+  proxy_headers: ["X-Forwarded-For", "X-Real-IP"]
