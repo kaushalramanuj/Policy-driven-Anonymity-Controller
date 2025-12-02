@@ -75,6 +75,37 @@ class AnonymityService:
         except:
             return url
     
+    @staticmethod
+    def _domain_requires_tor(domain: str) -> bool:
+        """
+        Check if a domain REQUIRES Tor to be accessed.
+        These domains cannot be resolved by regular DNS.
+        
+        Args:
+            domain: The domain name to check
+            
+        Returns:
+            True if the domain requires Tor, False otherwise
+        """
+        if not domain:
+            return False
+        
+        domain_lower = domain.lower()
+        
+        # TLDs that require Tor or special networks
+        tor_required_tlds = [
+            '.onion',      # Tor hidden services
+            '.i2p',        # I2P network
+            '.loki',       # Lokinet
+            '.bit',        # Namecoin (often accessed via Tor)
+        ]
+        
+        for tld in tor_required_tlds:
+            if domain_lower.endswith(tld):
+                return True
+        
+        return False
+    
     def _log_request(self, request_id: str, user_id: str, request_data: Dict,
                      policy_result: Dict, proxy_config: Dict, response_data: Dict,
                      total_time: float, policy_time: float, execution_time: float,
@@ -258,8 +289,15 @@ class AnonymityService:
             user_backend_pref = request_data.get('preferences', {}).get('backend', 'auto')
             policy_suggested = policy_result.get('suggested_backend', 'tor')
             
+            # Check if domain REQUIRES Tor (e.g., .onion domains)
+            requires_tor = self._domain_requires_tor(target_domain)
+            
             # Determine actual backend to use
-            if user_backend_pref == 'auto':
+            if requires_tor:
+                # .onion and other special domains MUST use Tor - no exceptions
+                backend_preference = 'tor'
+                logger.info(f"[{request_id}] Forcing Tor for special domain: {target_domain}")
+            elif user_backend_pref == 'auto':
                 # Auto mode: use policy suggestion
                 backend_preference = policy_suggested
             elif user_backend_pref == 'direct' and policy_result['risk_level'] in ['high', 'critical']:

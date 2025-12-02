@@ -517,6 +517,9 @@ const AnonymityRequest = {
         if (!resultsCard || !resultsDiv) return;
 
         console.log('Display Results - Full Response:', response);
+        console.log('Response success:', response.success);
+        console.log('Response content length:', response.response?.content?.length);
+        console.log('Backend used:', response.backend_used);
 
         if (response.success) {
             // Handle nested performance object
@@ -745,14 +748,28 @@ const AnonymityRequest = {
 
         const metadata = {};
 
-        // Extract title
-        const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
+        // Extract title - try multiple patterns
+        let titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
+        if (!titleMatch) {
+            // Try to match title with content inside (handles some edge cases)
+            titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+        }
         metadata.title = titleMatch ? this.decodeHtmlEntities(titleMatch[1].trim()) : null;
+        
+        // Debug logging
+        console.log('Extracted title:', metadata.title);
 
-        // Extract meta description
-        const descMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']*)["'][^>]*>/i) ||
-                          html.match(/<meta[^>]*content=["']([^"']*)["'][^>]*name=["']description["'][^>]*>/i);
+        // Extract meta description - try multiple patterns
+        let descMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']*)["'][^>]*>/i) ||
+                        html.match(/<meta[^>]*content=["']([^"']*)["'][^>]*name=["']description["'][^>]*>/i);
+        
+        // Also try without quotes around attribute values
+        if (!descMatch) {
+            descMatch = html.match(/<meta[^>]*name=description[^>]*content=["']([^"']*)["'][^>]*>/i);
+        }
         metadata.description = descMatch ? this.decodeHtmlEntities(descMatch[1].trim()) : null;
+        
+        console.log('Extracted description:', metadata.description);
 
         // Extract meta keywords
         const keywordsMatch = html.match(/<meta[^>]*name=["']keywords["'][^>]*content=["']([^"']*)["'][^>]*>/i) ||
